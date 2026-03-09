@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 app = FastAPI()
 
@@ -25,7 +27,7 @@ async def chat(request: MessageRequest):
         raise HTTPException(status_code=500, detail="API Key not configured")
 
     API_URL = "https://routerai.ru/api/v1/chat/completions"
-    MODEL_NAME = "qwen/qwen-plus-2025-01-25"
+    MODEL_NAME = "qwen/qwen-plus"
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -44,12 +46,15 @@ async def chat(request: MessageRequest):
     }
 
     try:
-        response = requests.post(API_URL, headers=headers, json=data, timeout=15)
+        # 🔧 Увеличиваем таймаут до 60 секунд
+        response = requests.post(API_URL, headers=headers, json=data, timeout=60)
         
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.text)
         
         result = response.json()
         return {"reply": result["choices"][0]["message"]["content"]}
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="Сервер отвечает слишком долго. Попробуйте позже.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
