@@ -6,10 +6,10 @@ import requests
 
 app = FastAPI()
 
-# Разрешаем запросы с любого сайта (для начала)
+# Разрешаем запросы с любого сайта
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -18,12 +18,14 @@ app.add_middleware(
 class MessageRequest(BaseModel):
     message: str
 
-# Ключ мы возьмем из настроек хостинга, не вшиваем в код!
+# Берём ключ из переменных окружения Vercel
 API_KEY = os.getenv("ROUTER_API_KEY")
-# Вставь сюда название модели из Шага 1
-MODEL_NAME = "qwen-2.5-7b-instruct" 
-# Вставь сюда базовый URL от RouterAI (обычно такой)
-API_URL = "https://api.routerai.ru/v1/chat/completions"
+
+# ✅ API URL из документации RouterAI (без пробелов!)
+API_URL = "https://routerai.ru/api/v1/chat/completions"
+
+# ✅ Модель Qwen3.5-27B (как в документации)
+MODEL_NAME = "qwen/qwen3.5-27b"
 
 @app.post("/chat")
 async def chat(request: MessageRequest):
@@ -48,9 +50,13 @@ async def chat(request: MessageRequest):
     }
 
     try:
-        response = requests.post(API_URL, headers=headers, json=data, timeout=10)
+        response = requests.post(API_URL, headers=headers, json=data, timeout=15)
         response.raise_for_status()
         result = response.json()
         return {"reply": result["choices"][0]["message"]["content"]}
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="Timeout: модель отвечает слишком долго")
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка запроса: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
