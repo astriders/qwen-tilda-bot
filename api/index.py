@@ -34,7 +34,7 @@ async def chat(request: MessageRequest):
         "Content-Type": "application/json"
     }
     
-    system_prompt = "Ты вежливый консультант сайта. Отвечай кратко, по делу, на русском языке."
+    system_prompt = "Ты вежливый консультант сайта по продаже напольных покрытий https://alixfloor.ru/ . Вся информация о том что могут у тебя спросить есть на этом сайте - https://alixfloor.ru/. Тебя зовут Олег. Будь вежлив.  Отвечай кратко, по делу, на русском языке."
 
     data = {
         "model": MODEL_NAME,
@@ -58,3 +58,4 @@ async def chat(request: MessageRequest):
         raise HTTPException(status_code=504, detail="Сервер отвечает слишком долго. Попробуйте позже.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
