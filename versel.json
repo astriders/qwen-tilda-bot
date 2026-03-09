@@ -1,0 +1,13 @@
+{
+    "functions": {
+        "main.py": {
+            "runtime": "@vercel/python@4.1.0"
+        }
+    },
+    "routes": [
+        {
+            "src": "/chat",
+            "dest": "main.py"
+        }
+    ]
+}
