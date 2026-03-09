@@ -25,7 +25,7 @@ API_KEY = os.getenv("ROUTER_API_KEY")
 API_URL = "https://routerai.ru/api/v1"
 
 # ✅ Модель Qwen3.5-27B (как в документации)
-MODEL_NAME = "qwen/qwen-plus-2025-01-25"
+MODEL_NAME = "qwen/qwen3.5-35b-a3b"
 
 @app.post("/chat")
 async def chat(request: MessageRequest):
@@ -60,5 +60,6 @@ async def chat(request: MessageRequest):
         raise HTTPException(status_code=500, detail=f"Ошибка запроса: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
