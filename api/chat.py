@@ -25,8 +25,8 @@ async def chat(request: MessageRequest):
         print("ERROR: API Key not found")
         raise HTTPException(status_code=500, detail="API Key not configured")
 
-    API_URL = "https://routerai.ru/api/v1/chat/completions"
-    MODEL_NAME = "qwen/qwen-plus-2025-01-25"
+    API_URL = "https://routerai.ru/api/v1"
+    MODEL_NAME = "qwen/qwen3.5-35b-a3b"
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -61,4 +61,5 @@ async def chat(request: MessageRequest):
         raise HTTPException(status_code=504, detail="Timeout")
     except Exception as e:
         print(f"Exception: {str(e)}")
+
         raise HTTPException(status_code=500, detail=str(e))
