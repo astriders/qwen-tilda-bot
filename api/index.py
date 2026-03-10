@@ -36,7 +36,6 @@ def search_products(query, products_db):
     query = query.lower()
     results = []
     
-    # Ключевые слова для категорий
     category_keywords = {
         'ламинат': 'laminat',
         'spc': 'spc',
@@ -49,7 +48,6 @@ def search_products(query, products_db):
         'плёнка': 'accessories'
     }
     
-    # Ключевые слова для цветов
     color_keywords = {
         'дуб': ['дуб', 'oak'],
         'серый': ['сер', 'grey', 'серый'],
@@ -61,21 +59,18 @@ def search_products(query, products_db):
         'бежевый': ['беж', 'beige']
     }
     
-    # Определяем категорию
     target_category = None
     for keyword, category in category_keywords.items():
         if keyword in query:
             target_category = category
             break
     
-    # Ищем товары
     if target_category and target_category in products_db:
         category_data = products_db[target_category]
         for product in category_data.get('products', []):
             score = 0
             searchable_text = f"{product.get('name', '')} {product.get('color', '')} {product.get('collection', '')}".lower()
             
-            # Проверяем совпадения по цвету
             for color_key, color_terms in color_keywords.items():
                 if color_key in query:
                     for term in color_terms:
@@ -83,7 +78,6 @@ def search_products(query, products_db):
                             score += 2
                             break
             
-            # Проверяем совпадения по названию
             for term in query.split():
                 if len(term) > 3 and term in searchable_text:
                     score += 1
@@ -91,7 +85,6 @@ def search_products(query, products_db):
             if score > 0:
                 results.append((score, product))
     
-    # Сортируем по релевантности и берём топ-3
     results.sort(key=lambda x: x[0], reverse=True)
     return [prod for score, prod in results[:3]]
     
@@ -119,6 +112,57 @@ def search_products(query, products_db):
     
     return results[:3]  # Возвращаем максимум 3 товара
 
+# 📚 ЗАГРУЗКА БАЗЫ СТАТЕЙ
+def load_articles():
+    try:
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        articles_path = os.path.join(base_path, 'articles.json')
+        
+        with open(articles_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading articles: {e}")
+        return {}
+
+# 🔍 ПОИСК СТАТЕЙ ПО ЗАПРОСУ
+def search_articles(query, articles_db):
+    query = query.lower()
+    results = []
+    
+    topic_keywords = {
+        'уклад': 'укладка',
+        'монтаж': 'укладка',
+        'тёплый пол': 'тёплый пол',
+        'подлож': 'подложка',
+        'фаск': 'фаска',
+        'сравн': 'сравнение',
+        'расчёт': 'расчёт',
+        'уход': 'уход',
+        'влаг': 'влагостойкость',
+        'класс': 'класс износостойкости',
+        'гаранти': 'гарантия',
+        'достав': 'доставка',
+        'оплат': 'оплата'
+    }
+    
+    for article in articles_db.get('articles', []):
+        score = 0
+        for short, full in topic_keywords.items():
+            if short in query and full in ' '.join(article.get('topics', [])):
+                score += 2
+        
+        if any(word in article.get('title', '').lower() for word in query.split()):
+            score += 1
+        
+        if any(word in article.get('summary', '').lower() for word in query.split()):
+            score += 1
+        
+        if score > 0:
+            results.append((score, article))
+    
+    results.sort(key=lambda x: x[0], reverse=True)
+    return [art for score, art in results[:3]]
+
 @app.post("/chat")
 async def chat(request: MessageRequest):
     API_KEY = os.getenv("ROUTER_API_KEY")
@@ -139,11 +183,75 @@ async def chat(request: MessageRequest):
     
     # 🔍 ИЩЕМ ТОВАРЫ ПО ЗАПРОСУ
     found_products = search_products(request.message, products_db)
+
+        # ➕ ДОБАВЛЯЕМ НАЙДЕННЫЕ ТОВАРЫ В ПРОМПТ
+    if found_products:
+        system_prompt += "\n\n🔍 ПОДХОДЯЩИЕ ТОВАРЫ ПО ЗАПРОСУ КЛИЕНТА:"
+        for product in found_products:
+            system_prompt += f"""
+• {product.get('name', '')}
+  Цена: {product.get('price', '')}
+  Артикул: {product.get('sku', '')}
+  Ссылка: {product.get('url', '')}
+  Описание: {product.get('description', '')}
+"""
+        system_prompt += "\n\nПредложи эти товары клиенту с кратким описанием и ссылками."
+
+        # 📚 ЗАГРУЖАЕМ СТАТЬИ
+    articles_db = load_articles()
+    
+    # 🔍 ИЩЕМ СТАТЬИ ПО ЗАПРОСУ
+    found_articles = search_articles(request.message, articles_db)
+    
+    # ➕ ДОБАВЛЯЕМ НАЙДЕННЫЕ СТАТЬИ В ПРОМПТ
+    if found_articles:
+        system_prompt += "\n\n📖 ПОЛЕЗНЫЕ СТАТЬИ ПО ТЕМЕ:"
+        for article in found_articles:
+            system_prompt += f"\n• {article.get('title', '')} — {article.get('url', '')}"
+        system_prompt += "\n\nПредложи клиенту прочитать эти статьи для подробной информации."
     
     # 📝 ФОРМИРУЕМ БАЗУ ЗНАНИЙ
     system_prompt = """
 Ты — онлайн-консультант магазина напольных покрытий AlixFloor.
 Твоя задача: помогать клиентам выбирать товары, отвечать на вопросы о доставке, оплате, гарантиях.
+
+🎓 ЭКСПЕРТИЗА (из статей на сайте):
+
+**Ламинат:**
+• 33 класс (12 мм) — для жилых помещений с высокой нагрузкой (гостиная, коридор, кухня)
+• 32 класс (8-10 мм) — для спален, кабинетов, помещений со средней нагрузкой
+• Влагостойкость ≠ водостойкость. Ламинат выдерживает влажную уборку, но не потоп
+• Фаска (4V) скрывает стыки и продлевает срок службы
+• Замок Uniclic (Бельгия) — надёжнее AquaOut, проще в укладке
+
+**SPC (кварцвинил):**
+• 43 класс — коммерческая износостойкость, подходит для любых помещений
+• 100% влагостойкий — можно в ванную, кухню, балкон
+• 5 мм с подложкой — лучше звукоизоляция, комфортнее ходьба
+• 4 мм без подложки — дешевле, но нужна отдельная подложка
+
+**Паркетная доска:**
+• 14 мм, 3,5 мм рабочий слой — можно шлифовать 1-2 раза
+• Матовый лак — практичнее, меньше видно царапин
+• Масло — натуральнее, но требует ухода раз в 1-2 года
+• Проfiloc 2G — замок для быстрой укладки без клея
+
+**Инженерная доска:**
+• 15 мм, 4 мм рабочий слой — стабильнее паркетной, меньше реагирует на влажность
+• Французская ёлка — премиум-укладка, расход +15-20%
+• Английская ёлка — классика, расход +10-15%
+• Палуба — экономичнее, расход +5%
+
+**Укладка:**
+• Тёплый пол: макс. +27°C, только электрический или водяной с терморегулятором
+• Подложка обязательна: 2 мм для ламината, 1 мм для SPC с подложкой
+• Пароизоляция (плёнка) обязательна на бетонное основание
+• Акклиматизация: 48 часов в помещении перед укладкой
+
+**Уход:**
+• Ламинат: влажная уборка, избегать избытка воды, не использовать абразивы
+• SPC: можно мыть, устойчив к бытовой химии
+• Паркет/инженер: спецсредства для деревянных полов, избегать царапин
 
 ❗ КРИТИЧЕСКИ ВАЖНО:
 • ССЫЛКИ НА ТОВАРЫ БЕРИ ТОЛЬКО ИЗ РАЗДЕЛА "НАЙДЕННЫЕ ТОВАРЫ" НИЖЕ
@@ -222,5 +330,3 @@ async def chat(request: MessageRequest):
         raise HTTPException(status_code=504, detail="Сервер отвечает слишком долго. Попробуйте позже.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
