@@ -18,6 +18,61 @@ app.add_middleware(
 class MessageRequest(BaseModel):
     message: str
 
+# 📚 ЗАГРУЗКА БАЗЫ ТОВАРОВ
+def load_products():
+    try:
+        # Путь к файлу products.json (лежит в корне репозитория)
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        products_path = os.path.join(base_path, 'products.json')
+        
+        with open(products_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading products: {e}")
+        return {}
+
+# 🔍 ПОИСК ТОВАРОВ ПО ЗАПРОСУ
+def search_products(query, products_db):
+    query = query.lower()
+    results = []
+    
+    # Ключевые слова для поиска по категориям
+    category_keywords = {
+        'ламинат': 'laminat',
+        'spc': 'spc',
+        'кварцвинил': 'spc',
+        'паркет': 'parket',
+        'инженер': 'injenernaya',
+        'ёлка': 'injenernaya',
+        'палуба': 'injenernaya',
+        'подложка': 'accessories',
+        'плёнка': 'accessories'
+    }
+    
+    # Определяем категорию по запросу
+    target_category = None
+    for keyword, category in category_keywords.items():
+        if keyword in query:
+            target_category = category
+            break
+    
+    # Ищем товары по названию и характеристикам
+    if target_category and target_category in products_db:
+        category_data = products_db[target_category]
+        for product in category_data.get('products', []):
+            # Ищем совпадения в названии, цвете, коллекции
+            searchable_text = f"{product.get('name', '')} {product.get('color', '')} {product.get('collection', '')}".lower()
+            
+            # Ключевые слова для поиска внутри категории
+            search_terms = ['дуб', 'серый', 'светлый', 'тёмный', 'белый', 'золотой', 'песочный', 'бежевый', 'натуральный']
+            
+            for term in search_terms:
+                if term in query and term in searchable_text:
+                    results.append(product)
+                    break
+    
+    return results[:3]  # Возвращаем максимум 3 товара
+
 @app.post("/chat")
 async def chat(request: MessageRequest):
     API_KEY = os.getenv("ROUTER_API_KEY")
@@ -33,17 +88,23 @@ async def chat(request: MessageRequest):
         "Content-Type": "application/json"
     }
     
-    # 📚 СИСТЕМНЫЙ ПРОМПТ С БАЗОЙ ЗНАНИЙ
+    # 📖 ЗАГРУЖАЕМ ТОВАРЫ
+    products_db = load_products()
+    
+    # 🔍 ИЩЕМ ТОВАРЫ ПО ЗАПРОСУ
+    found_products = search_products(request.message, products_db)
+    
+    # 📝 ФОРМИРУЕМ БАЗУ ЗНАНИЙ
     system_prompt = """
 Ты — онлайн-консультант магазина напольных покрытий AlixFloor.
 Твоя задача: помогать клиентам выбирать товары, отвечать на вопросы о доставке, оплате, гарантиях.
 
-📦 КАТАЛОГ ТОВАРОВ:
-1. Ламинат 33 класс (12 мм) — Natural Line, City Line — от 2450 ₽/м²
-2. Ламинат 32 класс (8-10 мм) — Vitality Line — от 2190 ₽/м²
-3. SPC (кварцвинил) 43 класс (5 мм) — Natural Line, City Line, Stone Line — от 2070 ₽/м²
-4. Паркетная доска (14 мм) — дуб, ясень — от 6500 ₽/м²
-5. Инженерная доска (15 мм) — ёлка, палуба — от 7590 ₽/м²
+📦 ОСНОВНЫЕ КАТЕГОРИИ:
+• Ламинат 33 класс (12 мм) — Natural Line, City Line — от 2450 ₽/м²
+• Ламинат 32 класс (8-10 мм) — Vitality Line, Regista — от 1490 ₽/м²
+• SPC (кварцвинил) 43 класс (5 мм) — от 2070 ₽/м²
+• Паркетная доска (14 мм) — от 6500 ₽/м²
+• Инженерная доска (15 мм) — Ёлка, Палуба — от 7590 ₽/м²
 
 🚚 ДОСТАВКА:
 • Москва: от 50 000 ₽ — 700 ₽, до 50 000 ₽ — 2000 ₽ (1-3 дня)
@@ -53,7 +114,7 @@ async def chat(request: MessageRequest):
 • За МКАД: +45 ₽/км
 
 💳 ОПЛАТА:
-• Не принимается на сайте! Менеджер связывается после заказа.
+• Оплата НЕ на сайте! Менеджер связывается после заказа.
 • Физлица: онлайн-ссылка, QR-код, наличные при получении (Москва/МО)
 • Юрлица: счёт с НДС/без НДС
 • Шоурум: Москва, Самара
@@ -63,55 +124,30 @@ async def chat(request: MessageRequest):
 • Email: info@alixgroup.ru
 • Время: Пн-Пт 10:00-18:00 МСК
 
-📄 ГАРАНТИИ И СЕРТИФИКАТЫ:
+📄 ГАРАНТИИ:
 • Вся продукция сертифицирована
-• Гарантийный срок зависит от коллекции (25-50 лет)
+• Гарантийный срок: 25-50 лет (зависит от коллекции)
 • Подробнее: https://alixfloor.ru/sertificates
-
-🏢 О КОМПАНИИ:
-• Бренд AlixFloor, владелец ООО «АЛИКС ГРУПП»
-• 18 лет на рынке, 5 заводов-производителей в РФ
-• Сделано в России
 
 ❗ ВАЖНО:
 • Если вопрос о гарантии, возврате, сотрудничестве, дизайнерам — предлагай связаться с менеджером
 • Если товара нет в базе — предлагай посмотреть на сайте или заказать звонок
-• Всегда давай прямые ссылки на товары (формат: https://alixfloor.ru/catalog/...)
 • Отвечай кратко, по делу, на русском языке
 • Не используй эмодзи в ответах
 """
 
-    # 🔍 ПОИСК ТОВАРОВ В ЗАПРОСЕ
-    user_message = request.message.lower()
-    
-    # Ключевые слова для поиска товаров
-    product_keywords = {
-        "дуб": "laminat/dub",
-        "ламинат": "laminat",
-        "spc": "spc",
-        "кварцвинил": "spc",
-        "паркет": "parketnaya-doska",
-        "инженер": "injenernaya-doska",
-        "ёлка": "french-elka",
-        "палуба": "paluba",
-        "33 класс": "laminat-33",
-        "43 класс": "spc",
-        "натуральный": "natural-line",
-        "city": "city-line",
-        "vitality": "vitality-line",
-        "regista": "regista"
-    }
-    
-    # Ищем совпадения
-    found_categories = []
-    for keyword, category in product_keywords.items():
-        if keyword in user_message:
-            found_categories.append(category)
-    
-    # Если нашли категории — добавляем подсказку в промпт
-    if found_categories:
-        system_prompt += f"\n\n🔍 КЛИЕНТ ИНТЕРЕСУЕТСЯ: {', '.join(found_categories)}"
-        system_prompt += "\nПредложи 2-3 товара из этих категорий с ценами и ссылками."
+    # ➕ ДОБАВЛЯЕМ НАЙДЕННЫЕ ТОВАРЫ В ПРОМПТ
+    if found_products:
+        system_prompt += "\n\n🔍 ПОДХОДЯЩИЕ ТОВАРЫ ПО ЗАПРОСУ КЛИЕНТА:"
+        for product in found_products:
+            system_prompt += f"""
+• {product.get('name', '')}
+  Цена: {product.get('price', '')}
+  Артикул: {product.get('sku', '')}
+  Ссылка: {product.get('url', '')}
+  Описание: {product.get('description', '')}
+"""
+        system_prompt += "\n\nПредложи эти товары клиенту с кратким описанием и ссылками."
 
     data = {
         "model": MODEL_NAME,
