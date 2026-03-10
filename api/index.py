@@ -36,7 +36,7 @@ def search_products(query, products_db):
     query = query.lower()
     results = []
     
-    # Ключевые слова для поиска по категориям
+    # Ключевые слова для категорий
     category_keywords = {
         'ламинат': 'laminat',
         'spc': 'spc',
@@ -48,6 +48,52 @@ def search_products(query, products_db):
         'подложка': 'accessories',
         'плёнка': 'accessories'
     }
+    
+    # Ключевые слова для цветов
+    color_keywords = {
+        'дуб': ['дуб', 'oak'],
+        'серый': ['сер', 'grey', 'серый'],
+        'светлый': ['светл', 'light', 'бел', 'беж'],
+        'тёмный': ['тёмн', 'dark', 'корич'],
+        'белый': ['бел', 'white'],
+        'золотой': ['золот', 'gold'],
+        'песочный': ['песоч', 'sand'],
+        'бежевый': ['беж', 'beige']
+    }
+    
+    # Определяем категорию
+    target_category = None
+    for keyword, category in category_keywords.items():
+        if keyword in query:
+            target_category = category
+            break
+    
+    # Ищем товары
+    if target_category and target_category in products_db:
+        category_data = products_db[target_category]
+        for product in category_data.get('products', []):
+            score = 0
+            searchable_text = f"{product.get('name', '')} {product.get('color', '')} {product.get('collection', '')}".lower()
+            
+            # Проверяем совпадения по цвету
+            for color_key, color_terms in color_keywords.items():
+                if color_key in query:
+                    for term in color_terms:
+                        if term in searchable_text:
+                            score += 2
+                            break
+            
+            # Проверяем совпадения по названию
+            for term in query.split():
+                if len(term) > 3 and term in searchable_text:
+                    score += 1
+            
+            if score > 0:
+                results.append((score, product))
+    
+    # Сортируем по релевантности и берём топ-3
+    results.sort(key=lambda x: x[0], reverse=True)
+    return [prod for score, prod in results[:3]]
     
     # Определяем категорию по запросу
     target_category = None
@@ -99,7 +145,13 @@ async def chat(request: MessageRequest):
 Ты — онлайн-консультант магазина напольных покрытий AlixFloor.
 Твоя задача: помогать клиентам выбирать товары, отвечать на вопросы о доставке, оплате, гарантиях.
 
-📦 ОСНОВНЫЕ КАТЕГОРИИ:
+❗ КРИТИЧЕСКИ ВАЖНО:
+• ССЫЛКИ НА ТОВАРЫ БЕРИ ТОЛЬКО ИЗ РАЗДЕЛА "НАЙДЕННЫЕ ТОВАРЫ" НИЖЕ
+• НЕ ВЫДУМЫВАЙ И НЕ ГЕНЕРИРУЙ ССЫЛКИ САМОСТОЯТЕЛЬНО
+• Если товара нет в списке "НАЙДЕННЫЕ ТОВАРЫ" — не давай ссылку, а предложи посмотреть на сайте
+• Используй ТОЛЬКО полные URL формата: https://alixfloor.ru/catalog/...
+
+📦 ОСНОВНЫЕ КАТЕГОРИИ (общая информация, БЕЗ ССЫЛОК):
 • Ламинат 33 класс (12 мм) — Natural Line, City Line — от 2450 ₽/м²
 • Ламинат 32 класс (8-10 мм) — Vitality Line, Regista — от 1490 ₽/м²
 • SPC (кварцвинил) 43 класс (5 мм) — от 2070 ₽/м²
@@ -133,7 +185,6 @@ async def chat(request: MessageRequest):
 • Если вопрос о гарантии, возврате, сотрудничестве, дизайнерам — предлагай связаться с менеджером
 • Если товара нет в базе — предлагай посмотреть на сайте или заказать звонок
 • Отвечай кратко, по делу, на русском языке
-• ССЫЛКИ НА ТОВАРЫ пиши полностью (https://...) — они станут кликабельными
 • Не используй эмодзи в ответах
 """
 
@@ -171,4 +222,5 @@ async def chat(request: MessageRequest):
         raise HTTPException(status_code=504, detail="Сервер отвечает слишком долго. Попробуйте позже.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
