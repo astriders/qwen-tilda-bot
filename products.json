@@ -1,0 +1,385 @@
+{
+  "laminat": {
+    "name": "Ламинат",
+    "description": "33 класс, 12 мм, водостойкий, с фаской",
+    "products": [
+      {
+        "name": "Дуб натуральный классический",
+        "sku": "ALX826",
+        "price": "2450 ₽/м²",
+        "class": "33 класс",
+        "thickness": "12 мм",
+        "collection": "Natural Line",
+        "color": "Светлый дуб",
+        "url": "https://alixfloor.ru/catalog/laminat/natural-line/dub-natur-classic-alx826",
+        "in_stock": true,
+        "description": "Хит продаж. Тёплый оттенок, подходит для гостиной и спальни"
+      },
+      {
+        "name": "Дуб выбеленный",
+        "sku": "ALX833",
+        "price": "2450 ₽/м²",
+        "class": "33 класс",
+        "thickness": "12 мм",
+        "collection": "Natural Line",
+        "color": "Белёный дуб",
+        "url": "https://alixfloor.ru/catalog/laminat/natural-line/dub-bel-alx833",
+        "in_stock": true,
+        "description": "Светлый современный декор, визуально расширяет пространство"
+      },
+      {
+        "name": "Дуб серый прованс",
+        "sku": "ALX822",
+        "price": "2450 ₽/м²",
+        "class": "33 класс",
+        "thickness": "12 мм",
+        "collection": "City Line",
+        "color": "Серый",
+        "url": "https://alixfloor.ru/catalog/laminat/city-line/dub-ser-provans-alx822",
+        "in_stock": true,
+        "description": "Стильный серый оттенок для современных интерьеров"
+      },
+      {
+        "name": "Орех американский",
+        "sku": "ALX832",
+        "price": "2450 ₽/м²",
+        "class": "33 класс",
+        "thickness": "12 мм",
+        "collection": "Natural Line",
+        "color": "Тёмный орех",
+        "url": "https://alixfloor.ru/catalog/laminat/natural-line/oreh-alx832",
+        "in_stock": true,
+        "description": "Благородный тёмный декор для классических интерьеров"
+      },
+      {
+        "name": "Дуб песочный",
+        "sku": "ALX-421SPR",
+        "price": "2400 ₽/м²",
+        "old_price": "3190 ₽/м²",
+        "class": "32 класс",
+        "thickness": "10 мм",
+        "collection": "Vitality Line",
+        "color": "Песочный",
+        "url": "https://alixfloor.ru/catalog/laminat/vitality-line/dub-pesok-alx-421spr",
+        "in_stock": true,
+        "discount": "-15%",
+        "description": "Акция! Бельгийское качество по выгодной цене"
+      }
+    ]
+  },
+  "spc": {
+    "name": "SPC (кварцвинил)",
+    "description": "43 класс, 5 мм, 100% влагостойкий, с подложкой",
+    "products": [
+      {
+        "name": "Дуб песочный светлый",
+        "sku": "ALX1568-7",
+        "price": "2070 ₽/м²",
+        "old_price": "2590 ₽/м²",
+        "class": "43 класс",
+        "thickness": "5 мм",
+        "collection": "Natural Line",
+        "color": "Светлый песочный",
+        "url": "https://alixfloor.ru/catalog/spc/natural-line/dub-pes-svetl-alx1568-7",
+        "in_stock": true,
+        "discount": "-20%",
+        "description": "Хит! 100% влагостойкий, подходит для ванной и кухни"
+      },
+      {
+        "name": "Дуб натуральный светлый",
+        "sku": "ALX1562-8",
+        "price": "2070 ₽/м²",
+        "old_price": "2590 ₽/м²",
+        "class": "43 класс",
+        "thickness": "5 мм",
+        "collection": "Natural Line",
+        "color": "Натуральный светлый",
+        "url": "https://alixfloor.ru/catalog/spc/natural-line/dub-natur-svetl-alx1562-8",
+        "in_stock": true,
+        "discount": "-20%",
+        "description": "Акция! Универсальный светлый декор"
+      },
+      {
+        "name": "Дуб молочный светлый",
+        "sku": "ALX3032-3",
+        "price": "2070 ₽/м²",
+        "old_price": "2590 ₽/м²",
+        "class": "43 класс",
+        "thickness": "5 мм",
+        "collection": "Natural Line",
+        "color": "Молочный",
+        "url": "https://alixfloor.ru/catalog/spc/natural-line/dub-moloko-svetl-alx3032-3",
+        "in_stock": true,
+        "discount": "-20%",
+        "description": "Нежный молочный оттенок для светлых интерьеров"
+      },
+      {
+        "name": "Дуб йоркширский серый",
+        "sku": "ALX1570-3",
+        "price": "2690 ₽/м²",
+        "class": "43 класс",
+        "thickness": "5 мм",
+        "collection": "City Line",
+        "color": "Серый",
+        "url": "https://alixfloor.ru/catalog/spc/city-line/dub-iork-ser-alx1570-3",
+        "in_stock": true,
+        "description": "Премиальный серый декор для современных пространств"
+      },
+      {
+        "name": "Камень светло-серый",
+        "sku": "ALX6023-12",
+        "price": "2550 ₽/м²",
+        "class": "43 класс",
+        "thickness": "4 мм",
+        "collection": "Stone Line",
+        "color": "Светло-серый камень",
+        "url": "https://alixfloor.ru/catalog/spc/stone-line/kamen-svetl-ser-alx6023-12",
+        "in_stock": true,
+        "description": "Имитация натурального камня, без подложки"
+      },
+      {
+        "name": "Мрамор натуральный",
+        "sku": "ALX6309-1",
+        "price": "2550 ₽/м²",
+        "class": "43 класс",
+        "thickness": "4 мм",
+        "collection": "Stone Line",
+        "color": "Натуральный мрамор",
+        "url": "https://alixfloor.ru/catalog/spc/stone-line/mramor-natur-alx6309-1",
+        "in_stock": true,
+        "description": "Роскошная имитация мрамора для элегантных интерьеров"
+      }
+    ]
+  },
+  "parket": {
+    "name": "Паркетная доска",
+    "description": "14 мм, 3,5 мм рабочий слой, матовый лак/масло",
+    "products": [
+      {
+        "name": "Дуб песочный светлый",
+        "sku": "ALX1024",
+        "price": "7965 ₽/м²",
+        "old_price": "8850 ₽/м²",
+        "class": "33 класс",
+        "thickness": "14 мм",
+        "collection": "Натур",
+        "color": "Песочный",
+        "url": "https://alixfloor.ru/catalog/parketnaya-doska/dub-pesok-svetl-alx1024",
+        "in_stock": true,
+        "discount": "-10%",
+        "description": "Хит! Натуральный дуб с масляно-лаковым покрытием"
+      },
+      {
+        "name": "Дуб золотой натуральный",
+        "sku": "ALX1016",
+        "price": "7965 ₽/м²",
+        "old_price": "8850 ₽/м²",
+        "class": "33 класс",
+        "thickness": "14 мм",
+        "collection": "Микс Натур",
+        "color": "Золотой",
+        "url": "https://alixfloor.ru/catalog/parketnaya-doska/dub-zoloto-natur-alx1016",
+        "in_stock": true,
+        "discount": "-10%",
+        "description": "Тёплый золотистый оттенок, покрытие маслом"
+      },
+      {
+        "name": "Дуб дымчато-серый",
+        "sku": "ALX1032",
+        "price": "7965 ₽/м²",
+        "old_price": "8850 ₽/м²",
+        "class": "33 класс",
+        "thickness": "14 мм",
+        "collection": "Микс Натур",
+        "color": "Дымчато-серый",
+        "url": "https://alixfloor.ru/catalog/parketnaya-doska/dub-dim-ser-alx1032",
+        "in_stock": true,
+        "discount": "-10%",
+        "description": "Современный серый декор с брашировкой"
+      },
+      {
+        "name": "Ясень светлый матовый",
+        "sku": "ALX1030",
+        "price": "6500 ₽/м²",
+        "old_price": "7650 ₽/м²",
+        "class": "33 класс",
+        "thickness": "14 мм",
+        "collection": "Кантри",
+        "color": "Светлый ясень",
+        "url": "https://alixfloor.ru/catalog/parketnaya-doska/yasen-svetl-mat-alx1030",
+        "in_stock": true,
+        "discount": "-15%",
+        "description": "Выгодная цена! Светлый ясень с матовым лаком"
+      }
+    ]
+  },
+  "injenernaya": {
+    "name": "Инженерная доска",
+    "description": "15 мм, 4 мм рабочий слой, шип-паз",
+    "products": [
+      {
+        "name": "Дуб бежевый натуральный (Французская ёлка)",
+        "sku": "ALX1018CV",
+        "price": "10690 ₽/м²",
+        "class": "33 класс",
+        "thickness": "15 мм",
+        "collection": "Эксквизит",
+        "color": "Бежевый",
+        "pattern": "Французская ёлка",
+        "url": "https://alixfloor.ru/catalog/injenernaya-doska/french-elka/dub_bejeviy_natur_alx1018cv",
+        "in_stock": true,
+        "description": "Премиум! Классическая французская ёлка, матовый лак"
+      },
+      {
+        "name": "Дуб золотой натуральный (Французская ёлка)",
+        "sku": "ALX1016CV",
+        "price": "10690 ₽/м²",
+        "class": "33 класс",
+        "thickness": "15 мм",
+        "collection": "Эксквизит",
+        "color": "Золотой",
+        "pattern": "Французская ёлка",
+        "url": "https://alixfloor.ru/catalog/injenernaya-doska/french-elka/dub_gold_natur_alx1016cv",
+        "in_stock": true,
+        "description": "Роскошная ёлка с тёплым золотистым оттенком, масло"
+      },
+      {
+        "name": "Дуб дымчато-серый (Французская ёлка)",
+        "sku": "ALX1032CV",
+        "price": "10690 ₽/м²",
+        "class": "33 класс",
+        "thickness": "15 мм",
+        "collection": "Эксквизит",
+        "color": "Дымчато-серый",
+        "pattern": "Французская ёлка",
+        "url": "https://alixfloor.ru/catalog/injenernaya-doska/french-elka/dub_dym_seriy_alx1032cv",
+        "in_stock": true,
+        "description": "Современная серая ёлка для стильных интерьеров"
+      },
+      {
+        "name": "Дуб золотой натуральный (Английская ёлка)",
+        "sku": "ALX1016HB",
+        "price": "9350 ₽/м²",
+        "class": "33 класс",
+        "thickness": "15 мм",
+        "collection": "Эксквизит",
+        "color": "Золотой",
+        "pattern": "Английская ёлка",
+        "url": "https://alixfloor.ru/catalog/injenernaya-doska/eng-elka/dub_gold_natur_alx1016hb",
+        "in_stock": true,
+        "description": "Классическая английская ёлка, покрытие маслом"
+      },
+      {
+        "name": "Дуб бежевый натуральный (Палуба)",
+        "sku": "ALX1018PL",
+        "price": "7590 ₽/м²",
+        "class": "33 класс",
+        "thickness": "15 мм",
+        "collection": "Маркант",
+        "color": "Бежевый",
+        "pattern": "Палуба",
+        "url": "https://alixfloor.ru/catalog/injenernaya-doska/paluba/dub_bejeviy_natur_alx1018pl",
+        "in_stock": true,
+        "description": "Классическая палуба, лучшее соотношение цены и качества"
+      },
+      {
+        "name": "Дуб песочный светлый (Палуба)",
+        "sku": "ALX1024PL",
+        "price": "7590 ₽/м²",
+        "class": "33 класс",
+        "thickness": "15 мм",
+        "collection": "Маркант",
+        "color": "Песочный",
+        "pattern": "Палуба",
+        "url": "https://alixfloor.ru/catalog/injenernaya-doska/paluba/dub_pesok_svetl_alx1024pl",
+        "in_stock": true,
+        "description": "Светлая палуба для просторных помещений"
+      }
+    ]
+  },
+  "regista": {
+    "name": "Ламинат Regista (бюджетный)",
+    "description": "33 класс, 8 мм, влагостойкий замок AquaOut",
+    "products": [
+      {
+        "name": "Дуб небесный",
+        "sku": "D1871",
+        "price": "1490 ₽/м²",
+        "class": "33 класс",
+        "thickness": "8 мм",
+        "collection": "Regista",
+        "color": "Светлый",
+        "url": "https://alixfloor.ru/catalog/laminat/regista/dub-nebesniy-d1871",
+        "in_stock": true,
+        "description": "Новинка! Бюджетный ламинат с влагостойким замком"
+      },
+      {
+        "name": "Дуб терра",
+        "sku": "D1873",
+        "price": "1490 ₽/м²",
+        "class": "33 класс",
+        "thickness": "8 мм",
+        "collection": "Regista",
+        "color": "Терра",
+        "url": "https://alixfloor.ru/catalog/laminat/regista/dub-terra-d1873",
+        "in_stock": true,
+        "description": "Новинка! Тёплый природный оттенок"
+      },
+      {
+        "name": "Дуб инфинити",
+        "sku": "D7065",
+        "price": "1490 ₽/м²",
+        "class": "33 класс",
+        "thickness": "8 мм",
+        "collection": "Regista",
+        "color": "Светло-серый",
+        "url": "https://alixfloor.ru/catalog/laminat/regista/dub-infinity-d7065",
+        "in_stock": true,
+        "description": "Новинка! Современный серый декор"
+      }
+    ]
+  },
+  "accessories": {
+    "name": "Аксессуары",
+    "description": "Подложки, плёнка, комплектующие",
+    "products": [
+      {
+        "name": "Подложка PRO LVT",
+        "sku": "AF PRO-LVT-R-6",
+        "price": "1850 ₽/рулон",
+        "thickness": "1 мм",
+        "size": "6 м²",
+        "url": "https://alixfloor.ru/catalog/accessories/podlojka-pro-lvt-r-6",
+        "in_stock": true,
+        "description": "Акустическая подложка под SPC и кварцвинил"
+      },
+      {
+        "name": "Подложка синтетическая 2 мм",
+        "sku": "PS2MM",
+        "price": "60 ₽/м.п.",
+        "thickness": "2 мм",
+        "url": "https://alixfloor.ru/catalog/accessories/podlojka-2mm",
+        "in_stock": true,
+        "description": "Подложка под ламинат, продаётся на отрез"
+      },
+      {
+        "name": "Подложка синтетическая 3 мм",
+        "sku": "PS3MM",
+        "price": "80 ₽/м.п.",
+        "thickness": "3 мм",
+        "url": "https://alixfloor.ru/catalog/accessories/podlojka-3mm",
+        "in_stock": true,
+        "description": "Усиленная подложка под ламинат"
+      },
+      {
+        "name": "Плёнка пароизоляционная",
+        "sku": "PT_200",
+        "price": "60 ₽/м²",
+        "size": "3 м²",
+        "url": "https://alixfloor.ru/catalog/accessories/plenka-paroizolyachionnaya",
+        "in_stock": true,
+        "description": "Пароизоляция под ламинат и паркетную доску"
+      }
+    ]
+  }
+}
