@@ -165,6 +165,15 @@ def search_articles(query, articles_db):
 
 @app.post("/chat")
 async def chat(request: MessageRequest):
+    # 📊 ЛОГИРОВАНИЕ ВОПРОСА (анонимно)
+    import logging
+    logger = logging.getLogger("alixfloor_bot")
+    logger.info(f"Question: {request.message[:200]}")  # обрезаем до 200 символов
+    # Или просто print, если logging не настроен:
+    print(f"🔍 [ALIXFLOOR] Вопрос от пользователя: {request.message[:200]}")
+    
+    API_KEY = os.getenv("ROUTER_API_KEY")
+async def chat(request: MessageRequest):
     API_KEY = os.getenv("ROUTER_API_KEY")
     
     if not API_KEY:
@@ -330,3 +339,4 @@ async def chat(request: MessageRequest):
         raise HTTPException(status_code=504, detail="Сервер отвечает слишком долго. Попробуйте позже.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
