@@ -2,31 +2,31 @@
   "articles": [
         {
       "title": "Как произвести оплату",
-      "url": "https://alixfloor.ru/oplata",
+      "url": "https://alixfloor.ru/payment",
       "topics": ["оплата", "физлица", "юрлица", "счет", "qr-код"],
       "summary": "Оплата не на сайте. Менеджер связывается с 10:00 до 18:00 Пн-Пт. Физлица: онлайн-ссылка, QR-код, наличные. Юрлица: счёт с НДС/без НДС."
     },
     {
       "title": "Доставка по Москве",
-      "url": "https://alixfloor.ru/dostavka",
+      "url": "https://alixfloor.ru/delivery",
       "topics": ["доставка", "москва", "мкад", "сроки"],
       "summary": "Москва: от 50 000 ₽ — 700 ₽, до 50 000 ₽ — 2000 ₽. Срок 1-3 дня. За МКАД: +45 ₽/км."
     },
     {
       "title": "Доставка по Санкт-Петербургу",
-      "url": "https://alixfloor.ru/dostavka",
+      "url": "https://alixfloor.ru/delivery",
       "topics": ["доставка", "санкт-петербург", "спб", "сроки"],
       "summary": "СПб: от 50 000 ₽ — 700 ₽, до 50 000 ₽ — 2000 ₽. Срок 2-4 дня."
     },
     {
       "title": "Доставка по России",
-      "url": "https://alixfloor.ru/dostavka",
+      "url": "https://alixfloor.ru/delivery",
       "topics": ["доставка", "россия", "тк", "регионы"],
       "summary": "Любая ТК на выбор. До терминала Москвы — 700 ₽. Срок в крупные города 3-5 дней."
     },
     {
       "title": "Самовывоз",
-      "url": "https://alixfloor.ru/dostavka",
+      "url": "https://alixfloor.ru/delivery",
       "topics": ["самовывоз", "склад", "москва"],
       "summary": "Бесплатно со склада в Москве (п. Мосрентген). По предварительной договорённости."
     },
