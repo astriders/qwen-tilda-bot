@@ -166,19 +166,15 @@ def search_articles(query, articles_db):
 @app.post("/chat")
 async def chat(request: MessageRequest):
     # 📊 ЛОГИРОВАНИЕ ВОПРОСА (анонимно)
-    import logging
-    logger = logging.getLogger("alixfloor_bot")
-    logger.info(f"Question: {request.message[:200]}")  # обрезаем до 200 символов
-    # Или просто print, если logging не настроен:
-    print(f"🔍 [ALIXFLOOR] Вопрос от пользователя: {request.message[:200]}")
+    print(f"🔍 [ALIXFLOOR] Вопрос: {request.message[:200]}")
     
-    API_KEY = os.getenv("ROUTER_API_KEY")
-async def chat(request: MessageRequest):
     API_KEY = os.getenv("ROUTER_API_KEY")
     
     if not API_KEY:
+        print("❌ ERROR: API Key not configured")
         raise HTTPException(status_code=500, detail="API Key not configured")
 
+    # ✅ Убраны пробелы в URL!
     API_URL = "https://routerai.ru/api/v1/chat/completions"
     MODEL_NAME = "qwen/qwen-plus"
 
@@ -339,4 +335,5 @@ async def chat(request: MessageRequest):
         raise HTTPException(status_code=504, detail="Сервер отвечает слишком долго. Попробуйте позже.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
