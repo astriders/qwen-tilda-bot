@@ -21,7 +21,6 @@ class MessageRequest(BaseModel):
 # 📚 ЗАГРУЗКА БАЗЫ ТОВАРОВ
 def load_products():
     try:
-        # Путь к файлу products.json (лежит в корне репозитория)
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         products_path = os.path.join(base_path, 'products.json')
         
@@ -31,7 +30,7 @@ def load_products():
         print(f"Error loading products: {e}")
         return {}
 
-# 🔍 ПОИСК ТОВАРОВ ПО ЗАПРОСУ
+# 🔍 ПОИСК ТОВАРОВ ПО ЗАПРОСУ (исправленная версия — без дублей)
 def search_products(query, products_db):
     query = query.lower()
     results = []
@@ -87,30 +86,6 @@ def search_products(query, products_db):
     
     results.sort(key=lambda x: x[0], reverse=True)
     return [prod for score, prod in results[:3]]
-    
-    # Определяем категорию по запросу
-    target_category = None
-    for keyword, category in category_keywords.items():
-        if keyword in query:
-            target_category = category
-            break
-    
-    # Ищем товары по названию и характеристикам
-    if target_category and target_category in products_db:
-        category_data = products_db[target_category]
-        for product in category_data.get('products', []):
-            # Ищем совпадения в названии, цвете, коллекции
-            searchable_text = f"{product.get('name', '')} {product.get('color', '')} {product.get('collection', '')}".lower()
-            
-            # Ключевые слова для поиска внутри категории
-            search_terms = ['дуб', 'серый', 'светлый', 'тёмный', 'белый', 'золотой', 'песочный', 'бежевый', 'натуральный']
-            
-            for term in search_terms:
-                if term in query and term in searchable_text:
-                    results.append(product)
-                    break
-    
-    return results[:3]  # Возвращаем максимум 3 товара
 
 # 📚 ЗАГРУЗКА БАЗЫ СТАТЕЙ
 def load_articles():
@@ -165,11 +140,17 @@ def search_articles(query, articles_db):
 
 @app.post("/chat")
 async def chat(request: MessageRequest):
+    # 📊 АНОНИМНОЕ ЛОГИРОВАНИЕ (без ПДн, только текст вопроса)
+    question_preview = request.message[:200] if len(request.message) > 200 else request.message
+    print(f"🔍 [ALIXFLOOR] Вопрос: {question_preview}")
+    
     API_KEY = os.getenv("ROUTER_API_KEY")
     if not API_KEY:
+        print("❌ [ALIXFLOOR] API Key not configured")
         raise HTTPException(status_code=500, detail="API Key not configured")
     
-    API_URL = "https://routerai.ru/api/v1/chat/completions"  # ✅ Без пробелов!
+    # ✅ API_URL без пробелов!
+    API_URL = "https://routerai.ru/api/v1/chat/completions"
     MODEL_NAME = "qwen/qwen-plus"
     
     headers = {
@@ -185,7 +166,7 @@ async def chat(request: MessageRequest):
     found_products = search_products(request.message, products_db)
     found_articles = search_articles(request.message, articles_db)
     
-    # 📝 ФОРМИРУЕМ БАЗУ ЗНАНИЙ (НАЧИНАЕМ ЗДЕСЬ!)
+    # 📝 ФОРМИРУЕМ БАЗУ ЗНАНИЙ
     system_prompt = """
 Ты — онлайн-консультант и эксперт по напольным покрытиям AlixFloor.
 Твоя задача: помогать клиентам выбирать товары, отвечать на вопросы о доставке, оплате, гарантиях.
@@ -288,12 +269,21 @@ async def chat(request: MessageRequest):
     }
     
     try:
+        print(f"📤 [ALIXFLOOR] Отправка запроса к модели: {MODEL_NAME}")
         response = requests.post(API_URL, headers=headers, json=data, timeout=60)
+        
         if response.status_code != 200:
+            print(f"❌ [ALIXFLOOR] Ошибка API: {response.status_code} - {response.text[:200]}")
             raise HTTPException(status_code=response.status_code, detail=response.text)
+        
         result = response.json()
-        return {"reply": result["choices"][0]["message"]["content"]}
+        reply = result["choices"][0]["message"]["content"]
+        print(f"✅ [ALIXFLOOR] Ответ получен, длина: {len(reply)} симв.")
+        return {"reply": reply}
+        
     except requests.exceptions.Timeout:
+        print("❌ [ALIXFLOOR] Timeout при запросе к API")
         raise HTTPException(status_code=504, detail="Сервер отвечает слишком долго. Попробуйте позже.")
     except Exception as e:
+        print(f"❌ [ALIXFLOOR] Исключение: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
