@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import os
 import requests
@@ -17,6 +18,13 @@ app.add_middleware(
 
 class MessageRequest(BaseModel):
     message: str
+
+@app.get("/")
+async def root():
+    """Serve the landing page with Vercel Analytics"""
+    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    html_path = os.path.join(base_path, 'public', 'index.html')
+    return FileResponse(html_path)
 
 # 📚 ЗАГРУЗКА БАЗЫ ТОВАРОВ
 def load_products():
@@ -292,8 +300,3 @@ async def chat(request: MessageRequest):
     except Exception as e:
         print(f"❌ [ALIXFLOOR] Исключение: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-
-
-

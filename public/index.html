@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlixFloor Qwen Tilda Bot API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #1a202c;
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        
+        .subtitle {
+            color: #4a5568;
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+        
+        .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .endpoint {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        
+        .endpoint-title {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .endpoint-url {
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            word-break: break-all;
+        }
+        
+        .docs-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin-top: 16px;
+        }
+        
+        .docs-link:hover {
+            background: #764ba2;
+        }
+        
+        .footer {
+            margin-top: 32px;
+            color: #718096;
+            font-size: 14px;
+        }
+    </style>
+    
+    <!-- Vercel Web Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AlixFloor Bot API</h1>
+        <p class="subtitle">Консультант по напольным покрытиям на базе Qwen</p>
+        
+        <div class="status">
+            API Active
+        </div>
+        
+        <div class="endpoint">
+            <div class="endpoint-title">Chat Endpoint</div>
+            <div class="endpoint-url">POST /chat</div>
+        </div>
+        
+        <a href="/docs" class="docs-link">📚 API Documentation</a>
+        
+        <div class="footer">
+            Powered by FastAPI & Qwen Plus
+        </div>
+    </div>
+</body>
+</html>
