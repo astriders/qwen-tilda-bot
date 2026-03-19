@@ -1,1 +1,128 @@
-
+{
+  "districts": {
+    "yuzhnyi-federalnyi-okrug": {
+      "name": "Южный федеральный округ",
+      "url": "/yuzhnyi-federalnyi-okrug",
+      "cities": {
+        "абхазия": "/abhaziya",
+        "аксай": "/aksai",
+        "астрахань": "/astrahan",
+        "волгоград": "/volgograd",
+        "краснодар": "/krasnodar",
+        "ростов-на-дону": "/rostov-na-donu",
+        "сочи": "/sochi",
+        "севастополь": "/sevastopol",
+        "шахты": "/shachti",
+        "ялта": "/yalta"
+      }
+    },
+    "severo-kavkazskiy-okrug": {
+      "name": "Северо-Кавказский федеральный округ",
+      "url": "/severo-kavkazskiy-okrug",
+      "cities": {
+        "владикавказ": "/vladikavkaz",
+        "грозный": "/grozniy",
+        "махачкала": "/mahachkala",
+        "назрань": "/nazran",
+        "нальчик": "/nalchik",
+        "пятигорск": "/pyatigorsk",
+        "ставрополь": "/stavropol"
+      }
+    },
+    "severo-zapadniy-okrug": {
+      "name": "Северо-Западный федеральный округ",
+      "url": "/severo-zapadniy-okrug",
+      "cities": {
+        "санкт-петербург": "/saint-petersburg",
+        "архангельск": "/archangelsk",
+        "вологда": "/vologda",
+        "калининград": "/kaliningrad",
+        "мурманск": "/murmansk",
+        "петрозаводск": "/petrozavodsk",
+        "сыктывкар": "/siktivkar",
+        "ухта": "/uhta",
+        "череповец": "/cherepovech"
+      }
+    },
+    "privolzskiy-okrug": {
+      "name": "Приволжский федеральный округ",
+      "url": "/privolzskiy-okrug",
+      "cities": {
+        "балаково": "/balakovo",
+        "ижевск": "/izevsk",
+        "йошкар-ола": "/ioshkar-ola",
+        "казань": "/kazan",
+        "киров": "/kirov",
+        "набережные челны": "/nabreznie-chelni",
+        "нижний новгород": "/nizniy-novgorod",
+        "новокуйбышевск": "/novokuibishevsk",
+        "оренбург": "/orenburg",
+        "пенза": "/penza",
+        "пермь": "/perm",
+        "самара": "/samara",
+        "саранск": "/saransk",
+        "саратов": "/saratov",
+        "стерлитамак": "/sterlitamak",
+        "тольятти": "/tolyatti",
+        "ульяновск": "/ulyanovsk",
+        "уфа": "/ufa",
+        "чебоксары": "/cheboksari",
+        "энгельс": "/engels"
+      }
+    },
+    "centralniy-okrug": {
+      "name": "Центральный федеральный округ",
+      "url": "/centralniy-okrug",
+      "cities": {
+        "москва": "/moscow",
+        "московская область": "/moscow-oblast",
+        "белгород": "/belgorod",
+        "брянск": "/braynsk",
+        "владимир": "/vladimir",
+        "иваново": "/ivanovo",
+        "калуга": "/kaluga",
+        "кострома": "/kostroma",
+        "курск": "/kursk",
+        "тула": "/tula",
+        "рязань": "/ryazan",
+        "смоленск": "/smolensk",
+        "тамбов": "/tambov",
+        "тверь": "/tver",
+        "ярославль": "/yaroslavl"
+      }
+    },
+    "uralskiy-okrug": {
+      "name": "Уральский федеральный округ",
+      "url": "/uralskiy-okrug",
+      "cities": {
+        "екатеринбург": "/ekaterinburg",
+        "курган": "/kurgan",
+        "нижневартовск": "/niznevartovsk",
+        "тюмень": "/tumen",
+        "челябинск": "/chelyabinsk"
+      }
+    },
+    "sibirskiy-okrug": {
+      "name": "Сибирский федеральный округ",
+      "url": "/sibirskiy-okrug",
+      "cities": {
+        "барнаул": "/barnaul",
+        "иркутск": "/irkutsk",
+        "кемерово": "/kemerovo",
+        "красноярск": "/krasnoyarsk",
+        "новосибирск": "/novosibirsk",
+        "томск": "/tomsk",
+        "новокузнецк": "/novokuznechk"
+      }
+    },
+    "dalnevostochniy-okrug": {
+      "name": "Дальневосточный федеральный округ",
+      "url": "/dalnevostochniy-okrug",
+      "cities": {
+        "владивосток": "/vladivostok",
+        "чита": "/chita",
+        "петропавловск-камчатский": "/petropavlovsk-kamchatskiy"
+      }
+    }
+  }
+}
