@@ -138,6 +138,42 @@ def search_articles(query, articles_db):
     results.sort(key=lambda x: x[0], reverse=True)
     return [art for score, art in results[:3]]
 
+# 🏙️ ЗАГРУЗКА БАЗЫ ГОРОДОВ
+def load_cities():
+    try:
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        cities_path = os.path.join(base_path, 'cities.json')
+        with open(cities_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading cities: {e}")
+        return {"cities": []}
+
+# 🔍 ПОИСК ГОРОДА ПО ЗАПРОСУ
+def search_city(query, cities_db):
+    query = query.lower()
+    results = []
+    
+    for city in cities_db.get('cities', []):
+        city_name = city.get('name', '').lower()
+        # Ищем совпадения по названию города
+        if city_name in query or query in city_name:
+            results.append(city)
+        # Ищем по региону
+        region = city.get('region', '').lower()
+        if region and region in query:
+            results.append(city)
+    
+    # Убираем дубликаты и возвращаем топ-3
+    seen = set()
+    unique_results = []
+    for city in results:
+        if city['name'] not in seen:
+            seen.add(city['name'])
+            unique_results.append(city)
+    
+    return unique_results[:3]
+
 @app.post("/chat")
 async def chat(request: MessageRequest):
     # 📊 АНОНИМНОЕ ЛОГИРОВАНИЕ (без ПДн, только текст вопроса)
@@ -161,10 +197,12 @@ async def chat(request: MessageRequest):
     # 📚 ЗАГРУЖАЕМ БАЗЫ
     products_db = load_products()
     articles_db = load_articles()
+    cities_db = load_cities()
     
     # 🔍 ИЩЕМ ТОВАРЫ И СТАТЬИ
     found_products = search_products(request.message, products_db)
     found_articles = search_articles(request.message, articles_db)
+    found_cities = search_city(request.message, cities_db)
     
     # 📝 ФОРМИРУЕМ БАЗУ ЗНАНИЙ
     system_prompt = """
@@ -241,6 +279,19 @@ async def chat(request: MessageRequest):
 • Шоу-рум в Москве, м. Румянцево Москва, 22-ой км Киевского шоссе, домовладение 4, Бизнес Парк "Румянцево", корпус "А", офисный вход № 8, офис 726 А,  Время работы: Пн-Пт 10:00-18:00 МСК, Телефон: +7 (495) 308-90-53
 • Шоу-рум в Самаре, Самара, улица Ново-Вокзальная, дом 27, 1 этаж, Время работы: Пн-Пт с 10:00 до 20:00. Сб с 11:00 до 18:00, Телефон: +7 (495) 308-90-53
 • Не оставляйте номер телефона в чате — используйте форму заказа звонка
+❗ ЛОГИКА ССЫЛОК НА ГОРОДА:
+• 🏙️ Если клиент спрашивает "где купить в [городе]" — используй ссылки из раздела "ГДЕ КУПИТЬ В ВАШЕМ ГОРОДЕ"
+• Не выдумывай адреса магазинов — направляй на страницу города
+• На страницах городов представлены  точки продаж ( адреса магазинов, в которых можно купить продукцию AlixFloor )
+  1. Сначала проверь список известных городов (см. базу ниже)
+  2. Если город есть — дай прямую ссылку: https://alixfloor.ru{slug}
+  3. Если города нет в списке — предложи ссылку на федеральный округ, в котором он находится, или общую страницу: /where-to-buy-alixfloor
+• Примеры:
+  "где купить в Казани" → /kazan
+  "Как заказать в Саратов" → /saratov  +  /delivery
+  "доставка в Омск" → /privolzskiy-okrug (или /where-to-buy-alixfloor) + /delivery
+  "А где можно посмотреть в Смоленске" → /smolensk
+• Не выдумывай slug для городов, которых нет в базе.
 📄 ГАРАНТИИ:
 • Вся продукция сертифицирована
 • Гарантийный срок: 25-50 лет (зависит от коллекции)
@@ -271,6 +322,14 @@ async def chat(request: MessageRequest):
         for article in found_articles:
             system_prompt += f"\n• {article.get('title', '')} — {article.get('url', '')}"
         system_prompt += "\n\nПредложи клиенту прочитать эти статьи для подробной информации."
+
+    # ➕ ДОБАВЛЯЕМ НАЙДЕННЫЕ ГОРОДА В ПРОМПТ (← Новый блок)
+    if found_cities:
+        system_prompt += "\n\n🏙️ ГДЕ КУПИТЬ В ВАШЕМ ГОРОДЕ:"
+        for city in found_cities:
+            system_prompt += f"\n    • {city.get('name', '')} — {city.get('url', '')}"
+        system_prompt += "\n\nЕсли клиент спрашивает про наличие в городе — дай ссылку на страницу города."
+    
     
     # 📤 ФОРМИРУЕМ ЗАПРОС К МОДЕЛИ
     data = {
