@@ -187,7 +187,7 @@ async def chat(request: MessageRequest):
     
     # ✅ API_URL без пробелов!
     API_URL = "https://routerai.ru/api/v1/chat/completions"
-    MODEL_NAME = "qwen/qwen-plus"
+    MODEL_NAME = "openai/gpt-4o-mini"
     
     headers = {
         "Authorization": f"Bearer {API_KEY}",
