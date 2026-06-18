@@ -156,12 +156,15 @@ def search_city(query, cities_db):
     
     for city in cities_db.get('cities', []):
         city_name = city.get('name', '').lower()
+        # Ищем совпадения по названию города
         if city_name in query or query in city_name:
             results.append(city)
+        # Ищем по региону
         region = city.get('region', '').lower()
         if region and region in query:
             results.append(city)
     
+    # Убираем дубликаты и возвращаем топ-3
     seen = set()
     unique_results = []
     for city in results:
@@ -322,12 +325,13 @@ async def chat(request: MessageRequest):
             system_prompt += f"\n• {article.get('title', '')} — {article.get('url', '')}"
         system_prompt += "\n\nПредложи клиенту прочитать эти статьи для подробной информации."
 
-    # ➕ ДОБАВЛЯЕМ НАЙДЕННЫЕ ГОРОДА В ПРОМПТ
+    # ➕ ДОБАВЛЯЕМ НАЙДЕННЫЕ ГОРОДА В ПРОМПТ (← Новый блок)
     if found_cities:
         system_prompt += "\n\n🏙️ ГДЕ КУПИТЬ В ВАШЕМ ГОРОДЕ:"
         for city in found_cities:
             system_prompt += f"\n    • {city.get('name', '')} — {city.get('url', '')}"
         system_prompt += "\n\nЕсли клиент спрашивает про наличие в городе — дай ссылку на страницу города."
+    
     
     # 📤 ФОРМИРУЕМ ЗАПРОС К МОДЕЛИ
     data = {
@@ -336,15 +340,11 @@ async def chat(request: MessageRequest):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": request.message}
         ],
-        "temperature": 0.7,
-        # 🔥 ЭТО ГЛАВНОЕ ДОБАВЛЕНИЕ — ОБРАБОТКА В РФ
-        "provider": {
-            "country": "ru"
-        }
+        "temperature": 0.7
     }
     
     try:
-        print(f"📤 [ALIXFLOOR] Отправка запроса к модели: {MODEL_NAME} (обработка в РФ)")
+        print(f"📤 [ALIXFLOOR] Отправка запроса к модели: {MODEL_NAME}")
         response = requests.post(API_URL, headers=headers, json=data, timeout=60)
         
         if response.status_code != 200:
