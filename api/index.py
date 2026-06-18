@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List, Optional
 import os
 import requests
 import json
@@ -15,15 +16,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 🔹 Теперь принимаем history опционально
 class MessageRequest(BaseModel):
     message: str
+    history: Optional[List[dict]] = []  # ← НОВОЕ: история переписки
 
 # 📚 ЗАГРУЗКА БАЗЫ ТОВАРОВ
 def load_products():
     try:
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         products_path = os.path.join(base_path, 'products.json')
-        
         with open(products_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except Exception as e:
@@ -87,19 +89,16 @@ def search_products(query, products_db):
     results.sort(key=lambda x: x[0], reverse=True)
     return [prod for score, prod in results[:3]]
 
-# 📚 ЗАГРУЗКА БАЗЫ СТАТЕЙ
 def load_articles():
     try:
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         articles_path = os.path.join(base_path, 'articles.json')
-        
         with open(articles_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except Exception as e:
         print(f"Error loading articles: {e}")
         return {}
 
-# 🔍 ПОИСК СТАТЕЙ ПО ЗАПРОСУ
 def search_articles(query, articles_db):
     query = query.lower()
     results = []
@@ -138,7 +137,6 @@ def search_articles(query, articles_db):
     results.sort(key=lambda x: x[0], reverse=True)
     return [art for score, art in results[:3]]
 
-# 🏙️ ЗАГРУЗКА БАЗЫ ГОРОДОВ
 def load_cities():
     try:
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -149,22 +147,18 @@ def load_cities():
         print(f"Error loading cities: {e}")
         return {"cities": []}
 
-# 🔍 ПОИСК ГОРОДА ПО ЗАПРОСУ
 def search_city(query, cities_db):
     query = query.lower()
     results = []
     
     for city in cities_db.get('cities', []):
         city_name = city.get('name', '').lower()
-        # Ищем совпадения по названию города
         if city_name in query or query in city_name:
             results.append(city)
-        # Ищем по региону
         region = city.get('region', '').lower()
         if region and region in query:
             results.append(city)
     
-    # Убираем дубликаты и возвращаем топ-3
     seen = set()
     unique_results = []
     for city in results:
@@ -174,18 +168,53 @@ def search_city(query, cities_db):
     
     return unique_results[:3]
 
+# 🔹 🔥 НОВАЯ ФУНКЦИЯ: формируем messages с историей
+def build_messages_with_history(system_prompt, history, current_message):
+    """
+    Формирует массив messages для GPT:
+    1. system prompt
+    2. история (последние 10 пар сообщений)
+    3. текущий запрос
+    """
+    messages = [{"role": "system", "content": system_prompt}]
+    
+    # 🔹 Ограничиваем историю последними 10 сообщениями (5 пар user/assistant)
+    # Чтобы не превысить лимит токенов и не перегрузить запрос
+    MAX_HISTORY_ITEMS = 10
+    
+    if history and len(history) > 0:
+        # Берём только последние N сообщений
+        recent_history = history[-MAX_HISTORY_ITEMS:]
+        
+        for msg in recent_history:
+            role = msg.get('role', '')
+            content = msg.get('content', '')
+            
+            # Валидация ролей
+            if role in ['user', 'assistant'] and content:
+                messages.append({
+                    "role": role,
+                    "content": content
+                })
+    
+    # Текущий запрос пользователя
+    messages.append({"role": "user", "content": current_message})
+    
+    return messages
+
+
 @app.post("/chat")
 async def chat(request: MessageRequest):
-    # 📊 АНОНИМНОЕ ЛОГИРОВАНИЕ (без ПДн, только текст вопроса)
+    # 📊 ЛОГИРОВАНИЕ
     question_preview = request.message[:200] if len(request.message) > 200 else request.message
-    print(f"🔍 [ALIXFLOOR] Вопрос: {question_preview}")
+    history_count = len(request.history) if request.history else 0
+    print(f"🔍 [ALIXFLOOR] Вопрос: {question_preview} | История: {history_count} сообщений")
     
     API_KEY = os.getenv("ROUTER_API_KEY")
     if not API_KEY:
         print("❌ [ALIXFLOOR] API Key not configured")
         raise HTTPException(status_code=500, detail="API Key not configured")
     
-    # ✅ API_URL без пробелов!
     API_URL = "https://routerai.ru/api/v1/chat/completions"
     MODEL_NAME = "openai/gpt-4o-mini"
     
@@ -199,12 +228,12 @@ async def chat(request: MessageRequest):
     articles_db = load_articles()
     cities_db = load_cities()
     
-    # 🔍 ИЩЕМ ТОВАРЫ И СТАТЬИ
+    # 🔍 ИЩЕМ ТОВАРЫ И СТАТЬИ (по текущему запросу)
     found_products = search_products(request.message, products_db)
     found_articles = search_articles(request.message, articles_db)
     found_cities = search_city(request.message, cities_db)
     
-    # 📝 ФОРМИРУЕМ БАЗУ ЗНАНИЙ
+    # 📝 ФОРМИРУЕМ БАЗУ ЗНАНИЙ (system prompt - без изменений)
     system_prompt = """
 Ты — онлайн-консультант и эксперт по напольным покрытиям AlixFloor.
 Твоя задача: помогать клиентам выбирать товары, отвечать на вопросы о доставке, оплате, гарантиях.
@@ -276,36 +305,33 @@ async def chat(request: MessageRequest):
 • Юрлица: счёт с НДС/без НДС
 • Шоурум: Москва, Самара
 📞 КОНТАКТЫ:
-• Чтобы заказать звонок: нажмите  на одноименную кнопку в шапке сайта
+• Чтобы заказать звонок: нажмите на одноименную кнопку в шапке сайта
 • Телефон: +7 (495) 308-90-53
-• Шоу-рум в Москве, м. Румянцево Москва, 22-ой км Киевского шоссе, домовладение 4, Бизнес Парк "Румянцево", корпус "А", офисный вход № 8, офис 726 А,  Время работы: Пн-Пт 10:00-18:00 МСК, Телефон: +7 (495) 308-90-53
-• Шоу-рум в Самаре, Самара, улица Ново-Вокзальная, дом 27, 1 этаж, Время работы: Пн-Пт с 10:00 до 20:00. Сб с 11:00 до 18:00, Телефон: +7 (495) 308-90-53
+• Шоу-рум в Москве, м. Румянцево Москва, 22-ой км Киевского шоссе, домовладение 4, Бизнес Парк "Румянцево", корпус "А", офисный вход № 8, офис 726 А, Время работы: Пн-Пт 10:00-18:00 МСК
+• Шоу-рум в Самаре, Самара, улица Ново-Вокзальная, дом 27, 1 этаж, Время работы: Пн-Пт с 10:00 до 20:00. Сб с 11:00 до 18:00
 • Не оставляйте номер телефона в чате — используйте форму заказа звонка
 ❗ ЛОГИКА ССЫЛОК НА ГОРОДА:
 • 🏙️ Если клиент спрашивает "где купить в [городе]" — используй ссылки из раздела "ГДЕ КУПИТЬ В ВАШЕМ ГОРОДЕ"
 • Не выдумывай адреса магазинов — направляй на страницу города
-• На страницах городов представлены  точки продаж ( адреса магазинов, в которых можно купить продукцию AlixFloor )
-  1. Сначала проверь список известных городов (см. базу ниже)
-  2. Если город есть — дай прямую ссылку: https://alixfloor.ru{slug}
-  3. Если города нет в списке — предложи ссылку на федеральный округ, в котором он находится, или общую страницу: /where-to-buy-alixfloor
-• Примеры:
-  "где купить в Казани" → /kazan
-  "Как заказать в Саратов" → /saratov  +  /delivery
-  "доставка в Омск" → /privolzskiy-okrug (или /where-to-buy-alixfloor) + /delivery
-  "А где можно посмотреть в Смоленске" → /smolensk
-• Не выдумывай slug для городов, которых нет в базе.
+• На страницах городов представлены точки продаж
+• Сначала проверь список известных городов
+• Если город есть — дай прямую ссылку: https://alixfloor.ru{slug}
+• Если города нет — предложи ссылку на федеральный округ или /where-to-buy-alixfloor
 📄 ГАРАНТИИ:
 • Вся продукция сертифицирована
 • Гарантийный срок: 25-50 лет (зависит от коллекции)
 • Подробнее: https://alixfloor.ru/sertificates
-❗ ВАЖНО:
+❗ КОНТЕКСТ РАЗГОВОРА:
+• Ты видишь историю переписки с клиентом
+• Если клиент ссылается на предыдущие сообщения ("а какой посоветуете", "а этот подойдёт?", "а сколько стоит") — ИСПОЛЬЗУЙ КОНТЕКСТ из истории
+• НЕ переспрашивай то, что уже было сказано ранее в диалоге
 • Если вопрос о гарантии, возврате, сотрудничестве, дизайнерам — предлагай связаться с менеджером
 • Если товара нет в базе — предлагай посмотреть на сайте или заказать звонок
 • Отвечай кратко, по делу, на русском языке
 • Не используй эмодзи в ответах
 """
     
-    # ➕ ДОБАВЛЯЕМ НАЙДЕННЫЕ ТОВАРЫ В ПРОМПТ
+    # ➕ НАЙДЕННЫЕ ТОВАРЫ
     if found_products:
         system_prompt += "\n\n🔍 ПОДХОДЯЩИЕ ТОВАРЫ ПО ЗАПРОСУ КЛИЕНТА:"
         for product in found_products:
@@ -318,33 +344,35 @@ async def chat(request: MessageRequest):
 """
         system_prompt += "\n\nПредложи эти товары клиенту с кратким описанием и ссылками."
     
-    # ➕ ДОБАВЛЯЕМ НАЙДЕННЫЕ СТАТЬИ В ПРОМПТ
+    # ➕ НАЙДЕННЫЕ СТАТЬИ
     if found_articles:
         system_prompt += "\n\n📖 ПОЛЕЗНЫЕ СТАТЬИ ПО ТЕМЕ:"
         for article in found_articles:
             system_prompt += f"\n• {article.get('title', '')} — {article.get('url', '')}"
         system_prompt += "\n\nПредложи клиенту прочитать эти статьи для подробной информации."
 
-    # ➕ ДОБАВЛЯЕМ НАЙДЕННЫЕ ГОРОДА В ПРОМПТ (← Новый блок)
+    # ➕ НАЙДЕННЫЕ ГОРОДА
     if found_cities:
         system_prompt += "\n\n🏙️ ГДЕ КУПИТЬ В ВАШЕМ ГОРОДЕ:"
         for city in found_cities:
             system_prompt += f"\n    • {city.get('name', '')} — {city.get('url', '')}"
         system_prompt += "\n\nЕсли клиент спрашивает про наличие в городе — дай ссылку на страницу города."
     
+    # 🔹 🔥 ФОРМИРУЕМ ЗАПРОС С ИСТОРИЕЙ
+    messages = build_messages_with_history(
+        system_prompt,
+        request.history,
+        request.message
+    )
     
-    # 📤 ФОРМИРУЕМ ЗАПРОС К МОДЕЛИ
     data = {
         "model": MODEL_NAME,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": request.message}
-        ],
+        "messages": messages,  # ← теперь это массив с историей
         "temperature": 0.7
     }
     
     try:
-        print(f"📤 [ALIXFLOOR] Отправка запроса к модели: {MODEL_NAME}")
+        print(f"📤 [ALIXFLOOR] Отправка запроса к модели: {MODEL_NAME}, сообщений в истории: {len(messages)}")
         response = requests.post(API_URL, headers=headers, json=data, timeout=60)
         
         if response.status_code != 200:
